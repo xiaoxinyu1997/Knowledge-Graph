@@ -1,0 +1,6 @@
+# pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# base ----------------------------------------
+numpy>=1.18.5
+# torch>=1.7.0
+# 最好手动安装适合本机的pytorch和cuda：https://pytorch.org/get-started/locally/
