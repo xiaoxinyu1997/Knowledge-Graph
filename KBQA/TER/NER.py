@@ -25,10 +25,10 @@ for cases in list(sh.rows)[1:] :
     query_result.append(lac.run(query))
 
 # 得到NER结果 query_result
-#print(query_result)
+# print(query_result)
 
 entity_possible = []
-hmm_n = ['n' 'nr' 'nz' 'ns' 'nt' 'an' 'nw' 'vn']
+# hmm_n = ['n' 'nr' 'nz' 'ns' 'nt' 'an' 'nw' 'vn']
 for cases in query_result:
     add_entity = []
     for i in range(len(cases[0])):
