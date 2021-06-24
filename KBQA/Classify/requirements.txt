@@ -4,3 +4,7 @@ sklearn
 importlib
 tqdm
 pytorch_pretrained_bert
+
+
+# 下载bert预训练中文模型到/Knowledge-Graph/KBQA/Classify/bert_pretain/
+# https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-chinese.tar.gz
