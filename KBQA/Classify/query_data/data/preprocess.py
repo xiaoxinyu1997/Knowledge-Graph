@@ -32,6 +32,6 @@ with open('dev.txt', 'w') as f:
 	for data in dev_data:
 		f.write(data[0]+'\t'+str(data[1])+'\n')
 
-with open('dev.txt', 'w') as f:
+with open('test.txt', 'w') as f:
 	for data in dev_data:
 		f.write(data[0]+'\t'+str(data[1])+'\n')
