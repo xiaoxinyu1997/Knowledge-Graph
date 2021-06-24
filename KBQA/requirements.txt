@@ -6,3 +6,4 @@ openpyxl
 termcolor
 tensorflow
 sklearn
+numpy
