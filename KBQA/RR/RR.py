@@ -126,13 +126,20 @@ def relation_reg(entity, question):
     SRQ = {}
     for triple in two_hop_subgraph:
         SRQ[triple[1]] = sentence_similarity(triple[1], question)
-        print(triple[1])
-        print(SRQ[triple[1]])
+        # print(triple[1])
+        # print(SRQ[triple[1]])
     SOQ = {}
     for triple in two_hop_subgraph:
         SOQ[triple[2]] = sentence_similarity(triple[2], question)
-        print(triple[2])
-        print(SOQ[triple[2]])
+        # print(triple[2])
+        # print(SOQ[triple[2]])
+
+    
+    print(SRQ)
+    print('______________________________________________________________')
+    print('______________________________________________________________')
+    print(SOQ)
+
     return SRQ, SOQ
 
     
