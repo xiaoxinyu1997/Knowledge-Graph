@@ -9,3 +9,4 @@ sklearn
 numpy
 pandas
 torch
+jieba
