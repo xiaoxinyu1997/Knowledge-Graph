@@ -1,0 +1,13 @@
+{
+    "criterion": {"_type":"choice","_value":["gini", "entropy"]},
+    "splitter": {"_type":"choice","_value":["best", "random"]},
+    "max_depth": {"_type":"randint","_value":[1, 4]},
+    "min_samples_split": {"_type":"uniform","_value":[0, 1]},
+    "min_samples_leaf": {"_type":"uniform","_value":[0, 2]},
+    "min_weight_fraction_leaf": {"_type":"uniform","_value":[0, 0.5]},
+    "max_features": {"_type":"choice","_value":["auto", "sqrt", "log2"]},
+    "random_state": {"_type":"randint","_value":[-10, 10]},
+    "max_leaf_nodes": {"_type":"randint","_value":[1, 10]},
+    "min_impurity_decrease": {"_type":"uniform","_value":[-1, 1]},
+    "ccp_alpha": {"_type":"uniform","_value":[0, 2]}
+}

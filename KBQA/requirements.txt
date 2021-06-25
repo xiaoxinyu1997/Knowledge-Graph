@@ -7,3 +7,5 @@ termcolor
 tensorflow
 sklearn
 numpy
+pandas
+torch
