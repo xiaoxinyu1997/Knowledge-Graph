@@ -33,7 +33,7 @@ def get_default_parameters():
     return params
 
 def get_model(PARAMS):
-    '''Get model according to parameters'''
+    '''Get saved_model according to parameters'''
     model = DecisionTreeClassifier()
     model.criterion = PARAMS.get('criterion')
     model.splitter = PARAMS.get('splitter')
@@ -48,7 +48,7 @@ def get_model(PARAMS):
     return model
 
 def run(X_train, X_test, y_train, y_test, model):
-    '''Train model and predict result'''
+    '''Train saved_model and predict result'''
     model.fit(X_train, y_train)
     score = model.score(X_test, y_test)
     LOG.debug('score: %s', score)

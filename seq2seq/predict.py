@@ -18,8 +18,8 @@ test_pairs = [(s_seq, t_seq) for s_seq, t_seq in zip(source_test, target_test)]
 
 source_batch, source_lengths, target_batch, target_lengths = train.get_batch(test_pairs, None)
 
-encoder = torch.load(checkpoint_path+"/encoder.model.iter"+str(iter_num)+".pth")
-decoder = torch.load(checkpoint_path+"/decoder.model.iter"+str(iter_num)+".pth")
+encoder = torch.load(checkpoint_path+"/encoder.saved_model.iter"+str(iter_num)+".pth")
+decoder = torch.load(checkpoint_path+"/decoder.saved_model.iter"+str(iter_num)+".pth")
 
 precision, preds = train.run_epoch(source_batch, source_lengths, target_batch, target_lengths, encoder, decoder, TRAIN=False)
 
