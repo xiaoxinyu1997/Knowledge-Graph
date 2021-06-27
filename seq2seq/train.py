@@ -185,7 +185,7 @@ if __name__ == "__main__":
 		print "buckets "+str(i)+": "+str(config.buckets[i])+" : "+str(len(train_pairs_buckets[i]))
 	'''
 	
-	print ("(3) build model...")
+	print ("(3) build saved_model...")
 	encoder = EncoderRNN(config)
 	decoder = DecoderRNN(config)
 	encoder_optimizer = optim.SGD(encoder.parameters(), lr=config.learning_rate)
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 	print (encoder)
 	print (decoder)
 	
-	print ("(4) train model...")
+	print ("(4) train saved_model...")
 	print_loss_total = 0  # Reset every print_every
 	num_epoch = config.num_epoch
 	print_every = config.print_every
@@ -224,5 +224,5 @@ if __name__ == "__main__":
 			print ("precision: "+str(precision))
 			
 		if iter % save_every == 0:
-			torch.save(encoder, config.checkpoint_path+"/encoder.model.iter"+str(iter)+".pth")
-			torch.save(decoder, config.checkpoint_path+"/decoder.model.iter"+str(iter)+".pth")	
+			torch.save(encoder, config.checkpoint_path+"/encoder.saved_model.iter"+str(iter)+".pth")
+			torch.save(decoder, config.checkpoint_path+"/decoder.saved_model.iter"+str(iter)+".pth")
