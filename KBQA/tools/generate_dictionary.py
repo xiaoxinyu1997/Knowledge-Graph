@@ -18,7 +18,7 @@ from LAC import LAC
 
 data_path = '../data/'
 lac = LAC(mode = 'lac')
-lac.load_customization(data_path + 'synonyms.txt', sep = '|')
+lac.load_customization(data_path + 'synonyms_dense.txt', sep = '|')
 
 # Step 1: Download the data.
 # Read the data into a list of strings.
@@ -40,20 +40,25 @@ def read_data():
 
     excel = openpyxl.load_workbook(data_path + 'train.xlsx')
     sheet = excel['sheet']
-    for row in list(sheet.rows)[0:]:
+    for row in list(sheet.rows)[1:]:
         raw_word_list.extend(lac.run(row[0].value)[0])
         raw_word_list.extend(lac.run(row[2].value)[0])
         raw_word_list.extend(lac.run(row[3].value)[0])
         if row[4].value == None:
-            raw_word_list.extend('None')
+            raw_word_list.extend(["None"])
         else:
             raw_word_list.extend(lac.run(row[4].value)[0])
         if row[5].value == None:
-            raw_word_list.extend('None')
+            raw_word_list.extend(["None"])
         elif isinstance(row[5].value, int):
             raw_word_list.extend(str(row[5].value))
         else:
             raw_word_list.extend(lac.run(row[5].value)[0])
+
+    excel2 = openpyxl.load_workbook(data_path + 'test1.xlsx')
+    sheet2 = excel2['sheet']
+    for row in list(sheet2.rows)[1:]:
+        raw_word_list.extend(lac.run(row[1].value)[0])
     # with open('doupocangqiong.txt',"r", encoding='UTF-8') as f:
     #     line = f.readline()
     #     while line:
@@ -65,6 +70,7 @@ def read_data():
     #             raw_words = list(jieba.cut(line,cut_all=False))
     #             raw_word_list.extend(raw_words)
     #         line=f.readline()
+    # np.savetxt("dictionary", raw_word_list, fmt = '%s')
     return raw_word_list
 
 words = read_data()
@@ -90,13 +96,15 @@ def build_dataset(words):
         data.append(index)
     count[0][1] = unk_count
     reverse_dictionary = dict(zip(dictionary.values(), dictionary.keys()))
+    # np.savetxt("dictionary", reverse_dictionary)
+    print(reverse_dictionary)
     return data, count, dictionary, reverse_dictionary
 
 data, count, dictionary, reverse_dictionary = build_dataset(words)
 #删除words节省内存
 del words  
-print('Most common words (+UNK)', count[:5])
-print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
+# print('Most common words (+UNK)', count[:5])
+# print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
 vocabulary_size = len(dictionary)
 
 
@@ -226,7 +234,7 @@ with tf.Session(graph=graph) as session:
     final_embeddings = normalized_embeddings.eval()
 
 # Step 6: Visualize the embeddings.
-def plot_with_labels(low_dim_embs, labels, filename='images/tsne3.png',fonts=None):
+def plot_with_labels(low_dim_embs, labels, filename='tsne3.png',fonts=None):
     assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
     plt.figure(figsize=(18, 18))  # in inches
     for i, label in enumerate(labels):
@@ -260,5 +268,9 @@ try:
 except ImportError:
     print("Please install sklearn, matplotlib, and scipy to visualize embeddings.")
 
+import pickle
 
-np.savetxt("embeddings", final_embeddings)
+dict_file = {}
+for i in range(len(reverse_dictionary)):
+    dict_file[reverse_dictionary[i]] = final_embeddings[i]
+np.save("dictionary.npy", dict_file)
