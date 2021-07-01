@@ -15,7 +15,9 @@ import torch.nn.functional as F
 
 def clean_data(sentence):
     ## 去除数字，空格和符号
-    r = u'[a-zA-Z0-9’!"#$%&，；：！？\'（）()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~+ +]'
+    # r = u'[a-zA-Z0-9’!"#$%&，；：！？\'（）()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~+ +]'   # 单标签分类
+    r = u'[’!"#$%&，；：！？\'（）()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~+ +]'    # 多标签分类
+
     sentence = re.sub(r, '', sentence)
     ## 分词
     words = jieba.cut(sentence)
@@ -26,21 +28,52 @@ def clean_data(sentence):
     return words
 
 
-# get vocab
+# get vocab & class
 def build_vocab(data_path):
     source = openpyxl.load_workbook(data_path)  # train.xlsx
     sh = source['sheet']
     word_list = set()
+    class_list = set()
 
     for cases in list(sh.rows)[1:]:
         query = cases[0].value  # 取第一列所有文本
         words = clean_data(query)
-        with open('alidata/data/all_words.txt', 'a', encoding='utf-8') as output:
+        with open('alidata/multidata/all_words.txt', 'a', encoding='utf-8') as output:
             output.write(' ' + ' '.join(words))
         for word in words:
             word_list.add(word)
 
+        label = str(cases[5].value)
+        multi_label = False
+        # if '｜' in label:
+        #     label = label.split('｜')
+        #     multi_label = True
+        if label == None:
+            label = 'None'
+        elif '｜' in label:  # label == '子业务｜子业务':
+            label = label.split('｜')
+            multi_label = True
+        elif '|' in label:
+            label = label.split('|')
+            multi_label = True
+        print(label)
+
+        if multi_label == False:
+            class_list.add(label)
+        else:
+            for lab in label:
+                class_list.add(lab)
+        # class_list.add(label) if multi_label == False else (class_list.add(lab) for lab in label)
+
     all_word = list(word_list)
+    class_list = list(class_list)
+
+    print(len(class_list))
+
+    with open('alidata/multidata/class.txt', 'w', encoding='utf-8') as f:
+        for cla in class_list:
+            f.write(cla + '\n')
+
     return all_word
 
 
@@ -51,67 +84,106 @@ def get_train_data(data_path):
 
     train_data_x = []
     train_data_y = []
+    categories = {}
+    label = 0
 
+    with open('alidata/multidata/class.txt', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        for line in lines:
+            if line:
+                categories[line.strip()] = label
+                label += 1
+    print('len of categories: ', len(categories))
+
+    ## 单标签分类
+    # for cases in list(sh.rows)[1:]:
+    #     query = cases[0].value  # 取第一列所有文本
+    #     answer = categories[cases[1].value]  # label
+    #     words = clean_data(query)
+    #
+    #     train_data_x.append(words)
+    #     train_data_y.append(answer)
+
+    ## 多标签分类
     for cases in list(sh.rows)[1:]:
         query = cases[0].value  # 取第一列所有文本
-        answer = categories[cases[1].value]  # label
-        words = clean_data(query)
+        answer = str(cases[5].value)  # multi-label
 
-        train_data_x.append(words)
-        train_data_y.append(answer)
+        # words = clean_data(query)
 
+        multi_label = False
+        if answer == None:
+            answer = 'None'
+        elif '|' in answer:
+            answer = answer.split('|')
+            multi_label = True
+        elif '｜' in answer:  # answer == '子业务｜子业务':
+            answer = answer.split('｜')
+            multi_label = True
+
+        # train_data_x.append(words)
+        train_data_x.append(query)
+        train_data_y.append([categories[answer]] if multi_label == False else [categories[ans] for ans in answer])
+
+    train_ratio = 0.8
+    dev_test_ratio = 0.1
+    with open('alidata/multidata/train.txt', 'w', encoding='utf-8') as tf:
+        train_x = train_data_x[:int(len(train_data_x)*train_ratio)]
+        train_y = train_data_y[:int(len(train_data_y)*train_ratio)]
+        for i in range(len(train_x)):
+            tf.write(train_x[i]+'\t'+' '.join([str(y) for y in train_y[i]])+'\n')
+    with open('alidata/multidata/dev.txt', 'w', encoding='utf-8') as td:
+        dev_x = train_data_x[int(len(train_data_x) * train_ratio):int(len(train_data_x)*(train_ratio+dev_test_ratio))]
+        dev_y = train_data_y[int(len(train_data_y) * train_ratio):int(len(train_data_x)*(train_ratio+dev_test_ratio))]
+        for i in range(len(dev_x)):
+            td.write(dev_x[i] + '\t' + ' '.join([str(y) for y in dev_y[i]])+'\n')
+    with open('alidata/multidata/test.txt', 'w', encoding='utf-8') as tt:
+        test_x = train_data_x[int(len(train_data_x)*(train_ratio+dev_test_ratio)):]
+        test_y = train_data_y[int(len(train_data_x)*(train_ratio+dev_test_ratio)):]
+        for i in range(len(test_x)):
+            tt.write(test_x[i] + '\t' + ' '.join([str(y) for y in test_y[i]])+'\n')
     return train_data_x, train_data_y
 
 
-# BOW词袋模型(词频计数)
-def bag_of_word(all_word, sentence):
-    words = clean_data(sentence)
+## 训练Word2Vec模型
+# num_features = 100  # Word vector dimensionality
+# min_word_count = 3  # Minimum word count
+# num_workers = 16  # Number of threads to run in parallel
+# context = 3  # Context window size
+# downsampling = 1e-3  # Downsample setting for frequent words
+#
+# def word2vec_model():
+#     sentences = word2vec.Text8Corpus("./multidata/all_words.txt")
+#
+#     print(sentences)
+#
+#     model = word2vec.Word2Vec(sentences, workers=num_workers, \
+#                               vector_size=num_features, min_count=min_word_count, \
+#                               window=context, sg=1, sample=downsampling)
+#     model.init_sims(replace=True)
+#     model.save("./saved_model/word2vec")
+#
+# # categories = {'属性值': 0, '比较句': 1, '并列句': 2}
+#
+# # all_word = build_vocab('./data/train.xlsx')
+# with open('alidata/multidata/all_words.txt', 'r') as f:
+#     all_word = f.read().split(' ')
+#
+# ## 训练word2vec模型
+# word2vec_model()
 
-    word2int = dict((w, i) for i, w in enumerate(all_word))
-    print(word2int)
 
-    onehot_encoded = []
-    for word in words:
-        one_hot = [0 for _ in range(len(all_word))]
-        if word in word2int:
-            one_hot[word2int[word]] = 1
-        onehot_encoded.append(one_hot)
-    # print(onehot_encoded)
-    # 按列求和
-    sentence_encoded = np.array(onehot_encoded).sum(axis=0)
-    return sentence_encoded
+datapath = 'alidata/multidata/train.xlsx'
+build_vocab(datapath)
+get_train_data(data_path=datapath)
 
 
-# all_word = '赤道 的 边境 万里无云 天 很 清'.split(' ')
-# sentence = '赤道 的 天 非常 清'
-# print(bag_of_word(all_word, sentence))
 
-# 训练Word2Vec模型
-num_features = 100  # Word vector dimensionality
-min_word_count = 3  # Minimum word count
-num_workers = 16  # Number of threads to run in parallel
-context = 3  # Context window size
-downsampling = 1e-3  # Downsample setting for frequent words
 
-def word2vec_model():
-    sentences = word2vec.Text8Corpus("./data/all_words.txt")
 
-    print(sentences)
 
-    model = word2vec.Word2Vec(sentences, workers=num_workers, \
-                              vector_size=num_features, min_count=min_word_count, \
-                              window=context, sg=1, sample=downsampling)
-    model.init_sims(replace=True)
-    model.save("./saved_model/word2vec")
 
-categories = {'属性值': 0, '比较句': 1, '并列句': 2}
 
-# all_word = build_vocab('./data/train.xlsx')
-with open('alidata/data/all_words.txt', 'r') as f:
-    all_word = f.read().split(' ')
-
-## 训练word2vec模型
-word2vec_model()
 
 # model_hasTrain = word2vec.Word2Vec.load('./saved_model/word2vec')  # 模型讀取方式
 # print(model_hasTrain.wv.most_similar('流量', topn=10))

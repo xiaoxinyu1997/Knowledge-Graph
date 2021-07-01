@@ -54,9 +54,16 @@ def train(config, model, train_iter, dev_iter, test_iter):
 
             outputs = model(trains)
             model.zero_grad()
-            loss = F.cross_entropy(outputs, torch.max(labels, 1)[1])
+
+            if config.multi_class == False:
+                loss = F.cross_entropy(outputs, torch.max(labels, 1)[1])
+            else:
+                labels = labels.to(dtype=torch.float)
+                loss = F.binary_cross_entropy(outputs, labels)
             loss.backward()
+
             optimizer.step()
+
             if total_batch % 100 == 0:
                 # 每多少轮输出在训练集和验证集上的效果
                 true = torch.max(labels.data, 1)[1].cpu()  # labels.data.cpu()

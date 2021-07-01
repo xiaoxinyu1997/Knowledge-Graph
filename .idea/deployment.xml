@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="xddz@10.0.12.45:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" serverName="xddz@10.0.12.45:22" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="mist@gpu260.mistgpu.xyz:10050">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_216" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="mist@gpu260.mistgpu.xyz:10050 (1)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_334" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="xddz@10.0.12.45:22">
         <serverdata>
           <mappings>
@@ -24,6 +10,5 @@
         </serverdata>
       </paths>
     </serverData>
-    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
