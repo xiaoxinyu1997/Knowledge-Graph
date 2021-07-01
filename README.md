@@ -10,3 +10,5 @@ KQA-pro: https://zhuanlan.zhihu.com/p/348851375    https://github.com/shijx12/KQ
 NL to SPARQL: https://github.com/Cardoso222/NL2SPARQL
 
 开放域中文KBQA系统： https://zhuanlan.zhihu.com/p/92317079
+
+TextCNN: https://arxiv.org/abs/1408.5882
