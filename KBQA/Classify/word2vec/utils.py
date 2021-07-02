@@ -16,7 +16,7 @@ def get_embedding_matrix(max_len):
     # load pre-trained word2vec
     wv = KeyedVectors.load("./saved_model/word2vec.wordvectors", mmap='r')
 
-    with open('alidata/data/all_words.txt', 'r') as f:
+    with open('alidata/data/all_words.txt', 'r', encoding='utf-8') as f:
         all_word = f.read().split(' ')
     # word2idx & idx2word
     tokenizer = Tokenizer()
@@ -33,13 +33,25 @@ def get_embedding_matrix(max_len):
     return embedding_matrix
 
 
+def get_categories():
+    categories = {}
+    label = 0
+    with open('alidata/multidata/class.txt', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        for line in lines:
+            categories[line] = label
+            label += 1
+    return categories
+
+
 def build_dataset(config):
     def load_dataset(path, max_len=30):
-        with open('alidata/data/all_words.txt', 'r') as f:
+        with open('alidata/multidata/all_words.txt', 'r', encoding='utf-8') as f:
             all_word = f.read().split(' ')
 
         # categories
-        categories = {'属性值': 0, '比较句': 1, '并列句': 2}
+        # categories = {'属性值': 0, '比较句': 1, '并列句': 2}
+        categories = get_categories()
 
         # word2idx & idx2word
         tokenizer = Tokenizer()
@@ -55,15 +67,24 @@ def build_dataset(config):
                     continue
                 content, label = lin.split('\t')
                 data_x.append(clean_data(content))
-                data_y.append(label)
+                if config.multi_class == False:
+                    data_y.append(label)  # 单标签分类
+                else:
+                    data_y.append(label.split(' '))  # 多标签分类
 
         # 对每个句子的每个词进行编号
         data_x_id = tokenizer.texts_to_sequences(data_x)
         # pad for sequence
         X = torch.Tensor(pad_sequences(data_x_id, maxlen=max_len))
-        # label one-hot encoding
-        Y = torch.Tensor(to_categorical(data_y, num_classes=len(categories)))
 
+        if config.multi_class == False:
+            # label one-hot encoding
+            Y = torch.Tensor(to_categorical(data_y, num_classes=len(categories)))
+        else:
+            Y = np.zeros([len(data_y), len(categories)])
+            for i in range(len(data_y)):
+                for idx in data_y[i]:
+                    Y[i][int(idx)] = 1
         return X, Y
 
     train = load_dataset(config.train_path, config.max_len)
@@ -73,7 +94,8 @@ def build_dataset(config):
 
 
 def build_loader(dataset, config):
-    torch_dataset = Data.TensorDataset(dataset[0], dataset[1])
+    # X, Y
+    torch_dataset = Data.TensorDataset(dataset[0], torch.Tensor(dataset[1]))
 
     loader = Data.DataLoader(
         dataset=torch_dataset,

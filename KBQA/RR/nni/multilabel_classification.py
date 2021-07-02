@@ -3,7 +3,7 @@ from sklearn.tree import DecisionTreeClassifier
 import pandas as pd
 import logging
 import numpy as np
-import nni
+# import nni
 
 LOG = logging.getLogger('sklearn_classification')
 
@@ -52,17 +52,18 @@ def run(X_train, X_test, y_train, y_test, model):
     model.fit(X_train, y_train)
     score = model.score(X_test, y_test)
     LOG.debug('score: %s', score)
-    nni.report_final_result(score)
+    print(score)
+    # nni.report_final_result(score)
 
 if __name__ == '__main__':
     X_train, X_test, y_train, y_test = load_data()
     try:
-        # get parameters from tuner
-        RECEIVED_PARAMS = nni.get_next_parameter()
-        LOG.debug(RECEIVED_PARAMS)
+        # # get parameters from tuner
+        # RECEIVED_PARAMS =  # nni.get_next_parameter()
+        # LOG.debug(RECEIVED_PARAMS)
         PARAMS = get_default_parameters()
-        PARAMS.update(RECEIVED_PARAMS)
-        LOG.debug(PARAMS)
+        # PARAMS.update(RECEIVED_PARAMS)
+        # LOG.debug(PARAMS)
         model = get_model(PARAMS)
         run(X_train, X_test, y_train, y_test, model)
     except Exception as exception:
