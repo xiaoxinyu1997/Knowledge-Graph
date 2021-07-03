@@ -36,7 +36,7 @@ def get_embedding_matrix(max_len):
 def get_categories():
     categories = {}
     label = 0
-    with open('alidata/multidata/class.txt', 'r', encoding='utf-8') as f:
+    with open('alidata/data/class.txt', 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
             categories[line] = label
@@ -46,7 +46,7 @@ def get_categories():
 
 def build_dataset(config):
     def load_dataset(path, max_len=30):
-        with open('alidata/multidata/all_words.txt', 'r', encoding='utf-8') as f:
+        with open('alidata/data/all_words.txt', 'r', encoding='utf-8') as f:
             all_word = f.read().split(' ')
 
         # categories

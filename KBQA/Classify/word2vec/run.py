@@ -13,7 +13,7 @@ from utils import build_dataset, build_loader, get_time_dif
 
 
 if __name__ == '__main__':
-    dataset = 'alidata/multidata'  # 'query_data'  # 数据集
+    dataset = 'alidata/data'  # 'query_data'  # 数据集
 
     # model_name = args.saved_model  # bert
     # x = import_module('models.' + model_name)

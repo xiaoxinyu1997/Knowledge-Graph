@@ -20,7 +20,7 @@ class Config(object):
         self.save_path = './saved_model' + '/saved_dict/' + self.model_name + '.ckpt'        # 模型训练结果
         self.log_path = dataset + '/log/' + self.model_name
 
-        self.dropout = 0.5                                              # 随机失活
+        self.dropout = 0.2                                              # 随机失活
         self.require_improvement = 1000                                 # 若超过1000batch效果还没提升，则提前结束训练
         self.num_classes = len(self.class_list)                         # 类别数
         self.multi_class = True
@@ -55,7 +55,7 @@ class Model(nn.Module):
 
     def conv_and_pool(self, x, conv):
         x = F.relu(conv(x)).squeeze(3)
-        x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        x = F.max_pool1d(x, x.size(2), int(x.size(2)/2)).squeeze(2)
         return x
 
     def forward(self, x):
