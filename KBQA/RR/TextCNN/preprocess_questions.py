@@ -12,7 +12,7 @@ excel = openpyxl.load_workbook(data_path + 'train.xlsx')
 sheet = excel['sheet']
 sentences = []
 for row in list(sheet.rows)[1:]:
-    sentences.extend(lac.run(row[0].value)[0])
+    sentences.append(lac.run(row[0].value)[0])
 max = len(sentences[0])
 for sentence in sentences:
     if max < len(sentence):
@@ -22,7 +22,7 @@ embeddings = []
 for sentence in sentences:
     words = []
     for i in range(max-1):
-        if i-1 < len(sentence) and sentence[i-1] in dictionary:
+        if i-1 < len(sentence):
             words.append(dictionary[sentence[i-1]])
         else:
             words.append(np.zeros([len(dictionary['专会'])], dtype = 'float32'))
