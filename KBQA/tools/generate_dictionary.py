@@ -35,9 +35,7 @@ def read_data():
             line = f.readline()
     stop_words = set(stop_words)
     print('停用词读取完毕，共{n}个词'.format(n=len(stop_words)))
-
     raw_word_list = []
-
     excel = openpyxl.load_workbook(data_path + 'train.xlsx')
     sheet = excel['sheet']
     for row in list(sheet.rows)[1:]:
@@ -54,23 +52,11 @@ def read_data():
             raw_word_list.extend(str(row[5].value))
         else:
             raw_word_list.extend(lac.run(row[5].value)[0])
-
     excel2 = openpyxl.load_workbook(data_path + 'test1.xlsx')
     sheet2 = excel2['sheet']
     for row in list(sheet2.rows)[1:]:
         raw_word_list.extend(lac.run(row[1].value)[0])
-    # with open('doupocangqiong.txt',"r", encoding='UTF-8') as f:
-    #     line = f.readline()
-    #     while line:
-    #         while '\n' in line:
-    #             line = line.replace('\n','')
-    #         while ' ' in line:
-    #             line = line.replace(' ','')
-    #         if len(line)>0: 
-    #             raw_words = list(jieba.cut(line,cut_all=False))
-    #             raw_word_list.extend(raw_words)
-    #         line=f.readline()
-    # np.savetxt("dictionary", raw_word_list, fmt = '%s')
+        raw_word_list = list(set(raw_word_list))
     return raw_word_list
 
 words = read_data()
@@ -195,7 +181,7 @@ with graph.as_default():
     init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 1000000
+num_steps = 150000
 
 with tf.Session(graph=graph) as session:
     # We must initialize all variables before we use them.
@@ -250,23 +236,23 @@ def plot_with_labels(low_dim_embs, labels, filename='tsne3.png',fonts=None):
 
     plt.savefig(filename,dpi=800)
 
-try:
-    from sklearn.manifold import TSNE
-    import matplotlib.pyplot as plt
-    from matplotlib.font_manager import FontProperties
+# try:
+#     from sklearn.manifold import TSNE
+#     import matplotlib.pyplot as plt
+#     from matplotlib.font_manager import FontProperties
     
-    #为了在图片上能显示出中文
-    font = FontProperties(fname=r".\simsun.ttc", size=14)
+#     #为了在图片上能显示出中文
+#     font = FontProperties(fname=r".\simsun.ttc", size=14)
     
-    tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
-    plot_only = 500
-    low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
-    labels = [reverse_dictionary[i] for i in xrange(plot_only)]
-    plot_with_labels(low_dim_embs, labels,fonts=font)
+#     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+#     plot_only = 500
+#     low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
+#     labels = [reverse_dictionary[i] for i in xrange(plot_only)]
+#     plot_with_labels(low_dim_embs, labels,fonts=font)
     
     
-except ImportError:
-    print("Please install sklearn, matplotlib, and scipy to visualize embeddings.")
+# except ImportError:
+#     print("Please install sklearn, matplotlib, and scipy to visualize embeddings.")
 
 import pickle
 
